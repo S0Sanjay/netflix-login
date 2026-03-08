@@ -14,7 +14,6 @@ export default function handler(req, res) {
       .json({ success: false, message: "All fields are required." });
 
   const USERS = fs.existsSync(DB) ? JSON.parse(fs.readFileSync(DB)) : [];
-
   const exists = USERS.find(
     (u) => u.email.toLowerCase() === email.toLowerCase(),
   );

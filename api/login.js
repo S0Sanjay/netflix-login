@@ -1,30 +1,32 @@
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setApiError("");
-  const validationErrors = validate();
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-  setLoading(true);
+import fs from "fs";
+import path from "path";
 
-  try {
-    const users = JSON.parse(localStorage.getItem("netflix_users") || "[]");
-    const exists = users.find(
-      (u) => u.email.toLowerCase() === formData.email.toLowerCase(),
-    );
-    if (exists) {
-      setApiError("An account with this email already exists.");
-    } else {
-      users.push({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-      localStorage.setItem("netflix_users", JSON.stringify(users));
-      navigate("/login");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+const DB = path.join("/tmp", "users.json");
+
+export default function handler(req, res) {
+  if (req.method !== "POST")
+    return res.status(405).json({ message: "Method not allowed" });
+
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and password are required." });
+
+  const USERS = fs.existsSync(DB) ? JSON.parse(fs.readFileSync(DB)) : [];
+  const user = USERS.find(
+    (u) =>
+      u.email.toLowerCase() === email.toLowerCase() && u.password === password,
+  );
+
+  if (!user)
+    return res
+      .status(401)
+      .json({ success: false, message: "Incorrect email or password." });
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful!",
+    user: { name: user.name, email: user.email },
+  });
+}

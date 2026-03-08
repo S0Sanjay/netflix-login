@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import "./Signup.css";
 import logo from "../assets/logo.png";
 
-const API_URL = import.meta.env.DEV 
-  ? 'http://localhost:5000/api' 
-  : '/api'
 export default function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -64,21 +60,23 @@ export default function Signup() {
       return;
     }
     setLoading(true);
+
     try {
-      const response = await axios.post(`${API_URL}/signup`, {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        password: formData.password,
-      });
-      if (response.data.success) {
-        sessionStorage.setItem("user", JSON.stringify(response.data.user));
+      const users = JSON.parse(localStorage.getItem("netflix_users") || "[]");
+      const exists = users.find(
+        (u) => u.email.toLowerCase() === formData.email.toLowerCase(),
+      );
+      if (exists) {
+        setApiError("An account with this email already exists.");
+      } else {
+        users.push({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
+        localStorage.setItem("netflix_users", JSON.stringify(users));
         navigate("/login");
       }
-    } catch (err) {
-      setApiError(
-        err.response?.data?.message ||
-          "Something went wrong. Please try again.",
-      );
     } finally {
       setLoading(false);
     }

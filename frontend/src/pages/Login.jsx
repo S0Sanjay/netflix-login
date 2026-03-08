@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import "./Login.css";
 import logo from "../assets/logo.png";
 
-const API_URL = import.meta.env.DEV 
-  ? 'http://localhost:5000/api' 
-  : '/api'
 export default function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -49,20 +45,23 @@ export default function Login() {
       return;
     }
     setLoading(true);
+
     try {
-      const response = await axios.post(`${API_URL}/login`, {
-        email: formData.email.trim(),
-        password: formData.password,
-      });
-      if (response.data.success) {
-        sessionStorage.setItem("user", JSON.stringify(response.data.user));
+      const users = JSON.parse(localStorage.getItem("netflix_users") || "[]");
+      const user = users.find(
+        (u) =>
+          u.email.toLowerCase() === formData.email.toLowerCase() &&
+          u.password === formData.password,
+      );
+      if (!user) {
+        setApiError("Incorrect email or password.");
+      } else {
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({ name: user.name, email: user.email }),
+        );
         navigate("/dashboard");
       }
-    } catch (err) {
-      setApiError(
-        err.response?.data?.message ||
-          "Something went wrong. Please try again.",
-      );
     } finally {
       setLoading(false);
     }
