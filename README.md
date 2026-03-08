@@ -1,6 +1,8 @@
 # 🎬 Netflix Login Clone
 
-A full-stack Netflix login page clone built with **React + Vite** (frontend) and **Node.js + Express** (backend).
+A full-stack Netflix login page clone built with **React + Vite** (frontend) and **Node.js + Express** (backend), deployed on **Vercel**.
+
+🔗 **Live Site:** https://netflix-login-tawny.vercel.app
 
 ---
 
@@ -8,33 +10,38 @@ A full-stack Netflix login page clone built with **React + Vite** (frontend) and
 
 ```
 netflix-login/
-├── backend/
+├── api/                        ← Vercel serverless functions
+│   ├── login.js
+│   └── signup.js
+├── backend/                    ← Local development server
 │   ├── package.json
 │   └── server.js
-└── frontend/
-    ├── index.html
-    ├── package.json
-    ├── vite.config.js
-    └── src/
-        ├── App.jsx
-        ├── main.jsx
-        ├── index.css
-        ├── assets/
-        │   ├── logo.png
-        │   ├── bg.jpg
-        │   └── (show images...)
-        └── pages/
-            ├── Login.jsx
-            ├── Login.css
-            ├── Signup.jsx
-            ├── Signup.css
-            ├── Dashboard.jsx
-            └── Dashboard.css
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── public/
+│   │   └── assets/             ← Show images & background
+│   └── src/
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── index.css
+│       ├── assets/
+│       │   └── logo.png
+│       └── pages/
+│           ├── Login.jsx
+│           ├── Login.css
+│           ├── Signup.jsx
+│           ├── Signup.css
+│           ├── Dashboard.jsx
+│           └── Dashboard.css
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Local)
 
 ### Step 1 — Start the Backend
 
@@ -58,26 +65,47 @@ npm run dev
 
 Frontend runs at → **http://localhost:5173**
 
-> ⚠️ Both terminals must be running at the same time.
+> ⚠️ Both terminals must be running at the same time for local development.
+
+---
+
+## 🌐 Deployment
+
+The app is deployed on **Vercel** with serverless API functions.
+
+| Layer | Service |
+|---|---|
+| Frontend | Vercel (auto-deploy from GitHub) |
+| Backend API | Vercel Serverless Functions (`/api` folder) |
+| User Storage | Browser `localStorage` |
+
+### Vercel Settings
+| Setting | Value |
+|---|---|
+| Root Directory | ` ` (blank) |
+| Build Command | `cd frontend && npm install && npm run build` |
+| Output Directory | `frontend/dist` |
 
 ---
 
 ## ✨ Features
 
 ### 🔐 Authentication
-- Sign up with name, email, and password
+- Sign up with full name, email, and password
 - Login with registered credentials
+- Duplicate email detection on signup
 - Sign out with confirmation popup
-- Protected dashboard route (redirects to login if not authenticated)
+- Protected dashboard (redirects to login if not authenticated)
 - User session stored in `sessionStorage`
+- User accounts stored in `localStorage`
 
 ### 📋 Login Page
 - Netflix-accurate UI with floating labels
 - Show / Hide password toggle
 - Remember me checkbox
-- Frontend validation (empty fields, email format, password length 4–60 chars)
-- Orange error banner with shake animation on invalid login
-- Loading spinner during API call
+- Frontend validation (empty fields, email format, password length)
+- Orange error banner with shake animation
+- Loading spinner during submission
 - Link to Sign Up page
 
 ### 📝 Sign Up Page
@@ -89,8 +117,9 @@ Frontend runs at → **http://localhost:5173**
 - Netflix-style navbar (hides on scroll down, reappears on scroll up)
 - Profile dropdown with sign out confirmation modal
 - Hero banner section
-- Horizontal scrollable content rows
-- Card hover zoom with overlay (play button, add button, match %, rating, seasons)
+- Horizontal scrollable content rows with show cards
+- Card hover zoom with overlay (play, add, match %, rating, seasons)
+- Card title hides on hover
 - Welcome message with logged-in user's full name
 
 ---
@@ -101,58 +130,18 @@ Frontend runs at → **http://localhost:5173**
 |---|---|
 | Frontend | React 19, Vite 6, React Router |
 | Styling | Plain CSS (Netflix design) |
-| HTTP Client | Axios |
-| Backend | Node.js, Express |
-| Auth | In-memory mock (no database) |
-
----
-
-## 📡 API Reference
-
-### `POST /api/signup`
-
-**Request:**
-```json
-{ "name": "John Doe", "email": "john@example.com", "password": "pass123" }
-```
-
-**Success (201):**
-```json
-{ "success": true, "user": { "name": "John Doe", "email": "john@example.com" } }
-```
-
-**Error (409):**
-```json
-{ "success": false, "message": "An account with this email already exists." }
-```
-
----
-
-### `POST /api/login`
-
-**Request:**
-```json
-{ "email": "john@example.com", "password": "pass123" }
-```
-
-**Success (200):**
-```json
-{ "success": true, "user": { "name": "John Doe", "email": "john@example.com" } }
-```
-
-**Error (401):**
-```json
-{ "success": false, "message": "Incorrect email or password." }
-```
+| Backend (local) | Node.js, Express |
+| Backend (production) | Vercel Serverless Functions |
+| Auth | localStorage (no database) |
 
 ---
 
 ## 🖼️ Adding Show Images
 
-Place images in `frontend/src/assets/` and update the `GENRES` array in `Dashboard.jsx`:
+Place images in `frontend/public/assets/` and update the `GENRES` array in `Dashboard.jsx`:
 
 ```jsx
-{ title: 'Stranger Things', rating: '16+', seasons: '4 Seasons', image: '/src/assets/stranger-things.jpg' }
+{ title: 'Stranger Things', rating: '16+', seasons: '4 Seasons', image: '/assets/stranger-things.jpg' }
 ```
 
 Recommended card image size: **180 × 280px** (portrait ratio)
@@ -161,6 +150,6 @@ Recommended card image size: **180 × 280px** (portrait ratio)
 
 ## ⚠️ Notes
 
-- User accounts are stored **in memory** — they reset every time the backend restarts
-- No database is used — this is a mock authentication system
-- Both frontend and backend servers must be running simultaneously
+- User accounts persist in the browser's `localStorage` — clearing browser data will remove accounts
+- The backend `server.js` is only used for local development
+- On production (Vercel), authentication is handled entirely by serverless functions and localStorage
