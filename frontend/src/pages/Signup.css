@@ -1,0 +1,9 @@
+@import "./Login.css";
+
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #000;
+}
